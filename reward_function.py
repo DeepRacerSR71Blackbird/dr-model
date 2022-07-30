@@ -92,7 +92,7 @@ class Reward:
             if self.verbose == True:
                 print("car_x={} car_y={}".format(car_x,car_y))
                 print("target_x={} target_y={}".format(tx,ty))
-                print("heading={} target_angle={} target_steering_angle={}".format(heading,target_angle,steering_angle))
+                print("head={} best_angle={} best_steering={}".format(heading,target_angle,steering_angle))
 
             return angle_mod_360(steering_angle)
 
@@ -106,7 +106,7 @@ class Reward:
             score = (1.0 - abs(error))**2
 
             if self.verbose == True:
-                print("actual_steering_angle={} score={}".format(steering_angle,score))
+                print("actual_steering={} score={}".format(steering_angle,score))
 
             return max(score, 0.01)  # optimizer is rumored to struggle with negative numbers and numbers too close to zero
 
@@ -465,11 +465,10 @@ class Reward:
 
         ####################### VERBOSE #######################
         if self.verbose == True:
-            print("all_wheels_on_track=" + str(all_wheels_on_track) + " x=" + str(x) + " y=" + str(y) + " distance_from_center=" + str(distance_from_center)
+            print(" total_reward=" + str(reward) + " steer_reward=" + str(steer_reward)+"all_wheels_on_track=" + str(all_wheels_on_track) + " x=" + str(x) + " y=" + str(y) + " distance_from_center=" + str(distance_from_center)
               + " heading=" + str(heading) + " progress=" + str(progress) + " steps=" + str(steps) + " speed=" + str(speed) + " steering_angle=" + str(steering_angle)
               + " is_offtrack=" + str(is_offtrack) + " closest_index=" + str(closest_index) + " distance_racingline="
-              + " optimal_speed=" + str(optimals[2]) + " speed_diff=" + " speed_reward=" + " direction_diff="
-              + " total_reward=" + str(reward) + " steer_reward=" + str(steer_reward)) # + " distance_reward=" + str(distance_reward) + str(speed_diff)
+              + " optimal_speed=" + str(optimals[2]) + " speed_diff=" + " speed_reward=") # + " distance_reward=" + str(distance_reward) + str(speed_diff)
             #+ str(speed_reward)+ " steps_reward="  + str(steps_reward) + str(direction_diff) + str(dist)
         #################### RETURN REWARD ####################
 
