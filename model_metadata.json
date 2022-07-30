@@ -9,8 +9,8 @@
             "speed": 2.8
         },
         {
-            "steering_angle": 12.25,
-            "speed": 2.5
+            "steering_angle": 13.25,
+            "speed": 2.8
         },
         {
             "steering_angle": -1.73,
@@ -26,15 +26,15 @@
         },
         {
             "steering_angle": 2.68,
-            "speed": 2.8
+            "speed": 3.0
         },
         {
             "steering_angle": -9.21,
-            "speed": 2.5
+            "speed": 2.3
         },
         {
-            "steering_angle": 1.39,
-            "speed": 3.2
+            "steering_angle": 1.5,
+            "speed": 3.6
         },
         {
             "steering_angle": 2.72,
@@ -42,23 +42,23 @@
         },
         {
             "steering_angle": 12.62,
-            "speed": 3.5
+            "speed": 3.3
         },
         {
             "steering_angle": 19.75,
-            "speed": 2.8
+            "speed": 2.5
         },
         {
             "steering_angle": -18.07,
             "speed": 2.8
         },
         {
-            "steering_angle": -5.81,
-            "speed": 2.0
+            "steering_angle": -9,
+            "speed": 1.8
         },
         {
-            "steering_angle": -12.28,
-            "speed": 3.4
+            "steering_angle": -14.28,
+            "speed": 3.2
         },
         {
             "steering_angle": 4.37,
@@ -66,11 +66,11 @@
         },
         {
             "steering_angle": 10.59,
-            "speed": 2.9
+            "speed": 3.2
         },
         {
-            "steering_angle": -8.74,
-            "speed": 3.0
+            "steering_angle": -10,
+            "speed": 2.8
         },
         {
             "steering_angle": -10.64,
@@ -78,11 +78,11 @@
         },
         {
             "steering_angle": 30.0,
-            "speed": 1.6
+            "speed": 1.4
         },
         {
-            "steering_angle": -20.0,
-            "speed": 1.6
+            "steering_angle": -22.0,
+            "speed": 1.5
         }
     ],
     "sensor": [
