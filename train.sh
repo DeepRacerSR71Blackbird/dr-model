@@ -11,6 +11,7 @@ echo "id to be plugged in new training job:"
 echo $id
 
 cp run.env.orig run.env
+echo "">>run.env
 echo "DR_LOCAL_S3_MODEL_PREFIX=$new_prefix">>run.env
 echo "DR_LOCAL_S3_PRETRAINED_PREFIX=$pretrained_prefix">>run.env
 echo "DR_LOCAL_S3_PRETRAINED_CHECKPOINT=best">>run.env
