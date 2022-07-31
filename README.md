@@ -1,6 +1,7 @@
 # dr-model template and training tracker
 1. clone model
 ```
+cd /PATH/TO/deepracer-templates
 git clone https://github.com/DeepRacerSR71Blackbird/dr-model.git
 mv dr-model custom-files
 ```
