@@ -7,6 +7,7 @@ mv dr-model custom-files
 ```
 2. create your new branch
 ```
+cd custom-files
 git checkout -b lw2_on1_on5_vz3
 ```
 3. copy or revise the following files to your preferred
