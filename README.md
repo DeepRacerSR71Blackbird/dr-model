@@ -11,7 +11,9 @@ cp ../custom-files-backup/reward_function.py ./
 4.  confirm the changes for this new model training
 [git diff|vimdiff] model_metadata, hyperparameters, reward_function
 5. Kick off training:
+
 Usage - train.sh [NEW_MODEL_PREFIX] [PRETRAINED_MODEL_PREFIX] [TRAINING_TIME] &> [LOG_PATH] %
+
 Example - bash ./train.sh lw2_on1_on5_vz3 lw2_on1_on5_vz2 70 &>../logs/train-lw2_on1_on5_vz3.log &
 6. check log
 tail -f ../logs/train-lw2_on1_on5_vz3.log 
