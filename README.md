@@ -21,6 +21,7 @@ cp ../custom-files-backup/reward_function.py ./
 [git diff|vimdiff] [model_metadata.json|hyperparameters.json|reward_function.py]
 ```
 5. Kick off training:
+  * Add execution permission - ```chmod +x train.sh```
   * Usage - ```bash train.sh [NEW_MODEL_PREFIX] [PRETRAINED_MODEL_PREFIX] [TRAINING_TIME] &> [LOG_PATH] &```
   * Example - ```bash ./train.sh lw2_on1_on5_vz3 lw2_on1_on5_vz2 70 &>../logs/train-lw2_on1_on5_vz3.log &```
 6. check log
