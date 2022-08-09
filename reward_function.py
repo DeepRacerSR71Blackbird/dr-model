@@ -90,23 +90,23 @@ class Reward:
             steering_angle = target_angle - heading
 
             if self.verbose == True:
-                print("car_x={} car_y={}".format(car_x,car_y))
-                print("target_x={} target_y={}".format(tx,ty))
-                print("head={} best_angle={} best_steering={}".format(heading,target_angle,steering_angle))
+                print("car_x={:.4f} car_y={:.4f}".format(car_x,car_y))
+                print("target_x={:.4f} target_y={:.4f}".format(tx,ty))
+                print("head={:.4f} best_angle={:.4f} best_steering={:.4f}".format(heading,target_angle,steering_angle))
 
             return angle_mod_360(steering_angle)
 
         def score_steer_to_point_ahead(params,racing_coords):
-            best_stearing_angle = get_target_steering_degree(params,racing_coords)
+            best_steering_angle = get_target_steering_degree(params,racing_coords)
             steering_angle = params['steering_angle']
 
             MAX_DIFF=30.0
-            error = (steering_angle - best_stearing_angle) / MAX_DIFF  # 30 degree is already really bad
+            error = ((steering_angle - best_steering_angle) / MAX_DIFF) if (steering_angle-best_steering_angle)<MAX_DIFF else 1  # 30 degree is already really bad
 
             score = (1.0 - abs(error))**2
 
             if self.verbose == True:
-                print("actual_steering={} score={}".format(steering_angle,score))
+                print("actual_steering={:.2f} score={:.4f}".format(steering_angle,score))
 
             return max(score, 0.01)  # optimizer is rumored to struggle with negative numbers and numbers too close to zero
 
