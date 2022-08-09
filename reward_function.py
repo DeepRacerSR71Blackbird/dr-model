@@ -87,23 +87,24 @@ class Reward:
 
             _, target_angle = polar(dx, dy)
 
-            steering_angle = target_angle - heading
+            best_steering_angle = angle_mod_360((target_angle - heading))
 
             if self.verbose == True:
                 print("car_x={:.4f} car_y={:.4f}".format(car_x,car_y))
                 print("target_x={:.4f} target_y={:.4f}".format(tx,ty))
-                print("head={:.4f} best_angle={:.4f} best_steering={:.4f}".format(heading,target_angle,steering_angle))
+                print("heading={:.4f} target_angle={:.4f} best_steering_angle={:.4f}".format(heading,target_angle,best_steering_angle))
 
-            return angle_mod_360(steering_angle)
+            return best_steering_angle
 
         def score_steer_to_point_ahead(params,racing_coords):
             best_steering_angle = get_target_steering_degree(params,racing_coords)
             steering_angle = params['steering_angle']
 
             MAX_DIFF=30.0
-            error = ((steering_angle - best_steering_angle) / MAX_DIFF) if (steering_angle-best_steering_angle)<MAX_DIFF else 1  # 30 degree is already really bad
+            dir_diff=abs(steering_angle - best_steering_angle)
+            error = (dir_diff / MAX_DIFF) if dir_diff<MAX_DIFF else 1  # 30 degree is already really bad
 
-            score = (1.0 - abs(error))**2
+            score = (1.0 - error)**2
 
             if self.verbose == True:
                 print("actual_steering={:.2f} score={:.4f}".format(steering_angle,score))
