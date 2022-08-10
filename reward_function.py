@@ -102,11 +102,17 @@ class Reward:
 
             MAX_DIFF=30.0
             dir_diff=abs(steering_angle - best_steering_angle)
-            error = (dir_diff / MAX_DIFF) if dir_diff<MAX_DIFF else 1  # 30 degree is already really bad
+            # error = (dir_diff / MAX_DIFF) if dir_diff<MAX_DIFF else 1  # 30 degree is already really bad
+            if dir_diff>15:
+                score=0
+            elif dir_diff>10:
+                score=0.5
+            else:
+                score=1
 
-            score = (1.0 - error)**2
-            if dir_diff<5:
-                score += 0.3
+            # score = (1.0 - error)**2
+            # if dir_diff<5:
+            #     score += 0.3
 
             if self.verbose == True:
                 print("actual_steering={:.2f} score={:.4f}".format(steering_angle,score))
