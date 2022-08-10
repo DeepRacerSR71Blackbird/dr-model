@@ -1,6 +1,6 @@
-new_prefix=$1
-pretrained_prefix=$2
-time=$3
+pretrained_prefix=$(head -1 VERSION)
+new_prefix=$(tail -1 VERSION)
+time=$1
 # EXAMPLE:
 # new_prefix=lw2_on1_on5_vz1
 # pretrained_prefix=lw2_on1_on5
