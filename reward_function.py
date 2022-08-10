@@ -451,7 +451,7 @@ class Reward:
         ################ REWARD AND PUNISHMENT ################
 
         ## Define the default reward ##
-        reward = 0.01
+        reward = 1
 
         ## Reward if car goes towards right direction
         DIRECTION_MULTIPLE = 1
@@ -464,13 +464,13 @@ class Reward:
         # direction_reward = (1e-3 if  (( dir_diff * steering_angle>0) | (abs(dir_diff-steering_angle)>30)) else (abs(dir_diff-steering_angle)/30)**0.5 )
         # reward += direction_reward
         steer_reward = score_steer_to_point_ahead(params,racing_track)
-        reward += steer_reward
+        reward += (steer_reward*2)
   
         ## Zero reward if off track ##
-        # if is_offtrack:
-        #     reward = 1e-3
-        # if all_wheels_on_track == False:
-        #     reward /= 2
+        if is_offtrack:
+            reward = 1e-3
+        elif all_wheels_on_track == False:
+            reward -= 0.5
 
         ####################### VERBOSE #######################
         if self.verbose == True:
