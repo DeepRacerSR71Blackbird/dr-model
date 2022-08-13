@@ -467,7 +467,7 @@ class Reward:
         # reward += (steer_reward*2)
         if dir_diff2next_optimal>25:
             reward = 1e-3
-        print(f"diff2optimal={dir_diff2next_optimal} diff2raceline={dir_diff2raceline}")
+        print("diff2optimal={:.2f} diff2raceline={:.2f}".format(dir_diff2next_optimal,dir_diff2raceline))
   
         ## Zero reward if off track ##
         # if is_offtrack:
