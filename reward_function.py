@@ -466,7 +466,7 @@ class Reward:
         # heading2optimal_diff,steer2optimal_diff,steer_reward
         heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
         # reward += (steer_reward*2)
-        if heading2optimal_diff>15:
+        if heading2optimal_diff>20:
             reward = 1e-3
         print("heading2optimal_diff={:.2f}".format(heading2optimal_diff))
         print("diff2optimal={:.2f} diff2raceline={:.2f}".format(steer2optimal_diff,dir_diff2raceline))
