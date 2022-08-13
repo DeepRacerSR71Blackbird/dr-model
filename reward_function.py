@@ -117,7 +117,7 @@ class Reward:
             if self.verbose == True:
                 print("actual_steering={:.2f} score={:.4f}".format(steering_angle,score))
 
-            return max(score, 0.01)  # optimizer is rumored to struggle with negative numbers and numbers too close to zero
+            return dir_diff,max(score, 0.01)  # optimizer is rumored to struggle with negative numbers and numbers too close to zero
 
         def dist_to_racing_line(closest_coords, second_closest_coords, car_coords):
 
@@ -460,17 +460,22 @@ class Reward:
             optimals = optimals_second
             optimals = tmp
         #racing_direction_diff(closest_coords, second_closest_coords, car_coords, heading)
-        dir_diff = racing_direction_diff_noabs(optimals[0:2], optimals_second[0:2], [x, y], heading)
+        dir_diff2raceline = racing_direction_diff_noabs(optimals[0:2], optimals_second[0:2], [x, y], heading)
         # direction_reward = (1e-3 if  (( dir_diff * steering_angle>0) | (abs(dir_diff-steering_angle)>30)) else (abs(dir_diff-steering_angle)/30)**0.5 )
         # reward += direction_reward
-        steer_reward = score_steer_to_point_ahead(params,racing_track)
-        reward += (steer_reward*2)
+        dir_diff2next_optimal,steer_reward = score_steer_to_point_ahead(params,racing_track)
+        # reward += (steer_reward*2)
+        if dir_diff2next_optimal>25:
+            reward = 1e-3
+        print(f"diff2optimal={dir_diff2next_optimal} diff2raceline={dir_diff2raceline}")
   
         ## Zero reward if off track ##
-        if is_offtrack:
+        # if is_offtrack:
+        #     reward = 1e-3
+        # elif all_wheels_on_track == False:
+        #     reward -= 0.5
+        if all_wheels_on_track == False:
             reward = 1e-3
-        elif all_wheels_on_track == False:
-            reward -= 0.5
 
         ####################### VERBOSE #######################
         if self.verbose == True:
