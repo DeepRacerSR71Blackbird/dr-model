@@ -14,7 +14,7 @@ cp run.env.orig run.env
 echo "">>run.env
 echo "DR_LOCAL_S3_MODEL_PREFIX=$new_prefix">>run.env
 echo "DR_LOCAL_S3_PRETRAINED_PREFIX=$pretrained_prefix">>run.env
-echo "DR_LOCAL_S3_PRETRAINED_CHECKPOINT=best">>run.env
+echo "DR_LOCAL_S3_PRETRAINED_CHECKPOINT=last">>run.env
 
 echo "============run.env file content============"
 cat run.env
