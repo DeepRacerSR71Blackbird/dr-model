@@ -461,13 +461,15 @@ class Reward:
             optimals = tmp
         #racing_direction_diff(closest_coords, second_closest_coords, car_coords, heading)
         dir_diff2raceline = racing_direction_diff_noabs(optimals[0:2], optimals_second[0:2], [x, y], heading)
+        if dir_diff2raceline > 30:
+            reward = 1e-3
         # direction_reward = (1e-3 if  (( dir_diff * steering_angle>0) | (abs(dir_diff-steering_angle)>30)) else (abs(dir_diff-steering_angle)/30)**0.5 )
         # reward += direction_reward
         # heading2optimal_diff,steer2optimal_diff,steer_reward
-        heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
         # reward += (steer_reward*2)
-        if heading2optimal_diff>20:
-            reward = 1e-3
+        heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
+        # if heading2optimal_diff>20:
+        #     reward = 1e-3
         print("heading2optimal_diff={:.2f}".format(heading2optimal_diff))
         print("diff2optimal={:.2f} diff2raceline={:.2f}".format(steer2optimal_diff,dir_diff2raceline))
   
