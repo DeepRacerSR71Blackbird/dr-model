@@ -113,6 +113,8 @@ class Reward:
             score = (1.0 - error)**2
             if dir_diff<5:
                 score = 1.0
+            elif dir_diff>30:
+                score = 0.0
 
             if self.verbose == True:
                 print("actual_steering={:.2f} score={:.4f}".format(steering_angle,score))
