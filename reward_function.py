@@ -102,22 +102,22 @@ class Reward:
 
             MAX_DIFF=30.0
             dir_diff=abs(steering_angle - best_steering_angle)
-            # error = (dir_diff / MAX_DIFF) if dir_diff<MAX_DIFF else 1  # 30 degree is already really bad
-            if dir_diff>15:
-                score=0
-            elif dir_diff>10:
-                score=0.5
-            else:
-                score=1
+            error = (dir_diff / MAX_DIFF) if dir_diff<MAX_DIFF else 1  # 30 degree is already really bad
+            # if dir_diff>15:
+            #     score=0
+            # elif dir_diff>10:
+            #     score=0.5
+            # else:
+            #     score=1
 
-            # score = (1.0 - error)**2
-            # if dir_diff<5:
-            #     score += 0.3
+            score = (1.0 - error)**2
+            if dir_diff<5:
+                score = 1.0
 
             if self.verbose == True:
                 print("actual_steering={:.2f} score={:.4f}".format(steering_angle,score))
 
-            return dir_diff,max(score, 0.01)  # optimizer is rumored to struggle with negative numbers and numbers too close to zero
+            return dir_diff,max(score, 1e-3)  # optimizer is rumored to struggle with negative numbers and numbers too close to zero
 
         def dist_to_racing_line(closest_coords, second_closest_coords, car_coords):
 
@@ -451,7 +451,7 @@ class Reward:
         ################ REWARD AND PUNISHMENT ################
 
         ## Define the default reward ##
-        reward = 1
+        reward = 0.0
 
         ## Reward if car goes towards right direction
         DIRECTION_MULTIPLE = 1
@@ -464,9 +464,9 @@ class Reward:
         # direction_reward = (1e-3 if  (( dir_diff * steering_angle>0) | (abs(dir_diff-steering_angle)>30)) else (abs(dir_diff-steering_angle)/30)**0.5 )
         # reward += direction_reward
         dir_diff2next_optimal,steer_reward = score_steer_to_point_ahead(params,racing_track)
-        # reward += (steer_reward*2)
-        if dir_diff2next_optimal>25:
-            reward = 1e-3
+        reward += steer_reward
+        # if dir_diff2next_optimal>25:
+        #     reward = 1e-3
         print("diff2optimal={:.2f} diff2raceline={:.2f}".format(dir_diff2next_optimal,dir_diff2raceline))
   
         ## Zero reward if off track ##
@@ -474,8 +474,8 @@ class Reward:
         #     reward = 1e-3
         # elif all_wheels_on_track == False:
         #     reward -= 0.5
-        if all_wheels_on_track == False:
-            reward = 1e-3
+        # if all_wheels_on_track == False:
+        #     reward = 1e-3
 
         ####################### VERBOSE #######################
         if self.verbose == True:
