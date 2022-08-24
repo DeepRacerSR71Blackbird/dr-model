@@ -32,93 +32,6 @@ class Reward:
 
             return [closest_index, second_closest_index]
 
-        # TODO based on closest_2_racing_points_index
-        def get_target_point(racing_coords,car_coords):
-            # Calculate all distances to racing points
-            distances = []
-            for i in range(len(racing_coords)):
-                distance = dist_2_points(x1=racing_coords[i][0], x2=car_coords[0],
-                                            y1=racing_coords[i][1], y2=car_coords[1])
-                distances.append(distance)
-
-            # Get index of the closest racing point
-            # TODO look forward - rcoef
-            closest_index = distances.index(min(distances))
-            return racing_coords[(closest_index+1)%len(racing_coords)]
-            
-        def polar(x, y):
-            """
-            returns r, theta(degrees)
-            """
-
-            r = (x ** 2 + y ** 2) ** .5
-            theta = math.degrees(math.atan2(y,x))
-            return r, theta
-
-        def angle_mod_360(angle):
-            """
-            Maps an angle to the interval -180, +180.
-
-            Examples:
-            angle_mod_360(362) == 2
-            angle_mod_360(270) == -90
-
-            :param angle: angle in degree
-            :return: angle in degree. Between -180 and +180
-            """
-
-            n = math.floor(angle/360.0)
-
-            angle_between_0_and_360 = angle - n*360.0
-
-            if angle_between_0_and_360 <= 180.0:
-                return angle_between_0_and_360
-            else:
-                return angle_between_0_and_360 - 360
-
-        # TODO based on generic
-        def get_target_steering_degree(params,racing_coords):
-            car_x = params['x']
-            car_y = params['y']
-            tx, ty, _, _ = get_target_point(racing_coords,[car_x,car_y])
-            dx = tx-car_x
-            dy = ty-car_y
-            heading = params['heading']
-
-            _, target_angle = polar(dx, dy)
-
-            best_steering_angle = angle_mod_360((target_angle - heading))
-
-            if self.verbose == True:
-                print("car_x={:.4f} car_y={:.4f}".format(car_x,car_y))
-                print("target_x={:.4f} target_y={:.4f}".format(tx,ty))
-                print("heading={:.4f} target_angle={:.4f} best_steering_angle={:.4f}".format(heading,target_angle,best_steering_angle))
-
-            return best_steering_angle
-
-        def score_steer_to_point_ahead(params,racing_coords):
-            best_steering_angle = get_target_steering_degree(params,racing_coords)
-            steering_angle = params['steering_angle']
-
-            MAX_DIFF=30.0
-            steer2optimal_diff=abs(steering_angle - best_steering_angle)
-            # error = (steer2optimal_diff / MAX_DIFF) if steer2optimal_diff<MAX_DIFF else 1  # 30 degree is already really bad
-            if steer2optimal_diff>15:
-                score=0
-            elif steer2optimal_diff>10:
-                score=0.5
-            else:
-                score=1
-
-            # score = (1.0 - error)**2
-            # if steer2optimal_diff<5:
-            #     score += 0.3
-
-            if self.verbose == True:
-                print("actual_steering={:.2f} score={:.4f}".format(steering_angle,score))
-            heading2optimal_diff = best_steering_angle
-            return heading2optimal_diff,steer2optimal_diff,max(score, 0.01)  # optimizer is rumored to struggle with negative numbers and numbers too close to zero
-
         def dist_to_racing_line(closest_coords, second_closest_coords, car_coords):
 
             # Calculate the distances between 2 closest racing points
@@ -194,26 +107,6 @@ class Reward:
             direction_diff = abs(track_direction - heading)
             if direction_diff > 180:
                 direction_diff = 360 - direction_diff
-
-            return direction_diff
-        
-        def racing_direction_diff_noabs(closest_coords, second_closest_coords, car_coords, heading):
-
-            # Calculate the direction of the center line based on the closest waypoints
-            next_point, prev_point = next_prev_racing_point(closest_coords,
-                                                            second_closest_coords,
-                                                            car_coords,
-                                                            heading)
-
-            # Calculate the direction in radius, arctan2(dy, dx), the result is (-pi, pi) in radians
-            track_direction = math.atan2(
-                next_point[1] - prev_point[1], next_point[0] - prev_point[0])
-
-            # Convert to degree
-            track_direction = math.degrees(track_direction)
-
-            # Calculate the difference between the track direction and the heading direction of the car
-            direction_diff = track_direction - heading
 
             return direction_diff
 
@@ -451,49 +344,85 @@ class Reward:
         ################ REWARD AND PUNISHMENT ################
 
         ## Define the default reward ##
-        # reward = 1
+        reward = 1
 
-        ## Reward if car goes towards right direction
-        DIRECTION_MULTIPLE = 1
-        if list(x[0] for x in racing_track).index(optimals[0])>list(x[0] for x in racing_track).index(optimals_second[0]):
-            tmp = optimals
-            optimals = optimals_second
-            optimals = tmp
-        #racing_direction_diff(closest_coords, second_closest_coords, car_coords, heading)
-        dir_diff2raceline = racing_direction_diff_noabs(optimals[0:2], optimals_second[0:2], [x, y], heading)
-        # if dir_diff2raceline > 30:
-        #     reward = 1e-3
-        # direction_reward = (1e-3 if  (( dir_diff * steering_angle>0) | (abs(dir_diff-steering_angle)>30)) else (abs(dir_diff-steering_angle)/30)**0.5 )
-        # reward += direction_reward
-        # heading2optimal_diff,steer2optimal_diff,steer_reward
-        # reward += (steer_reward*2)
-        heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
-        heading2optimal_diff=abs(heading2optimal_diff)
-        if heading2optimal_diff>89:
-            reward = 1e-3
-        elif heading2optimal_diff>15:
-            reward = (1-(heading2optimal_diff/90))
+        ## Reward if car goes close to optimal racing line ##
+        '''
+        DISTANCE_MULTIPLE = 3
+        dist = dist_to_racing_line(optimals[0:2], optimals_second[0:2], [x, y])
+        distance_reward = max(1e-3, 1 - (dist/(track_width*0.2))) * DISTANCE_MULTIPLE
+        reward += distance_reward
+        
+        ABS_STEERING_THRESHOLD = 15 
+        abs_steering = abs(steering_angle)
+        # Penalize reward if the car is steering too much
+        if abs_steering > ABS_STEERING_THRESHOLD:
+            reward *= (ABS_STEERING_THRESHOLD/abs_steering)
+        '''
+        ## Reward if speed is close to optimal speed ##
+        '''
+        SPEED_DIFF_NO_REWARD = 1
+        SPEED_MULTIPLE = 1
+        speed_diff = abs(optimals[2]-speed)
+        if speed_diff <= SPEED_DIFF_NO_REWARD:
+            # we use quadratic punishment (not linear) bc we're not as confident with the optimal speed
+            # so, we do not punish small deviations from optimal speed
+            speed_reward = 1 - (speed_diff/(SPEED_DIFF_NO_REWARD))**2
         else:
-            reward = 1
+            speed_reward = 0
+        speed_reward = speed_reward * SPEED_MULTIPLE
+        reward += speed_reward
+        
+        # Reward if less steps 
+        REWARD_PER_STEP_FOR_FASTEST_TIME = 4
+        STANDARD_TIME = 21
+        FASTEST_TIME = 16
+        times_list = [row[3] for row in racing_track]
+        projected_time = projected_time(self.first_racingpoint_index, closest_index, steps, times_list) 
+        try:
+            steps_prediction = projected_time * 15 + 1
+            reward_prediction = max(1e-3, (- REWARD_PER_STEP_FOR_FASTEST_TIME * (FASTEST_TIME) /
+                (STANDARD_TIME - FASTEST_TIME)) * ( steps_prediction - (STANDARD_TIME * 15 + 1)))
+            steps_reward = min(REWARD_PER_STEP_FOR_FASTEST_TIME, reward_prediction / steps_prediction)
+        except:
+            steps_reward = 0 
+        reward += steps_reward
+        '''
+        # Zero reward if obviously wrong direction (e.g. spin)
+        direction_diff = racing_direction_diff(
+            optimals[0:2], optimals_second[0:2], [x, y], heading)
+        if direction_diff > 30:
+            reward = 1e-3
+        '''
+        # Zero reward of obviously too slow
+        speed_diff_zero = optimals[2]-speed
+        if speed_diff_zero > 0.5:
+            reward = 1e-3
 
-        print("heading2optimal_diff={:.2f}".format(heading2optimal_diff))
-        print("diff2optimal={:.2f} diff2raceline={:.2f}".format(steer2optimal_diff,dir_diff2raceline))
-  
+        ## Incentive for finishing the lap in less steps ##
+        REWARD_FOR_FASTEST_TIME = 1000 # should be adapted to track length and other rewards
+        STANDARD_TIME = 21  # seconds (time that is easily done by model)
+        FASTEST_TIME = 16  # seconds (best time of 1st place on the track)
+        if progress == 100:
+            finish_reward = max(1e-3, (-REWARD_FOR_FASTEST_TIME /
+                        (15*(STANDARD_TIME-FASTEST_TIME)))*(steps-STANDARD_TIME*15))
+        else:
+            finish_reward = 0
+        reward += finish_reward
+        '''
         ## Zero reward if off track ##
-        # if is_offtrack:
-        #     reward = 1e-3
-        # elif all_wheels_on_track == False:
-        #     reward -= 0.5
         if all_wheels_on_track == False:
             reward = 1e-3
 
         ####################### VERBOSE #######################
+        '''
         if self.verbose == True:
-            print(" total_reward=" + str(reward) + " steer_reward=" + str(steer_reward)+"all_wheels_on_track=" + str(all_wheels_on_track) + " x=" + str(x) + " y=" + str(y) + " distance_from_center=" + str(distance_from_center)
+            print("all_wheels_on_track=" + str(all_wheels_on_track) + " x=" + str(x) + " y=" + str(y) + " distance_from_center=" + str(distance_from_center)
               + " heading=" + str(heading) + " progress=" + str(progress) + " steps=" + str(steps) + " speed=" + str(speed) + " steering_angle=" + str(steering_angle)
-              + " is_offtrack=" + str(is_offtrack) + " closest_index=" + str(closest_index) + " distance_racingline="
-              + " optimal_speed=" + str(optimals[2]) + " speed_diff=" + " speed_reward=") # + " distance_reward=" + str(distance_reward) + str(speed_diff)
-            #+ str(speed_reward)+ " steps_reward="  + str(steps_reward) + str(direction_diff) + str(dist)
+              + " is_offtrack=" + str(is_offtrack) + " distance_reward=" + str(distance_reward) + " closest_index=" + str(closest_index) + " distance_racingline=" + str(dist)
+              + " optimal_speed=" + str(optimals[2]) + " speed_diff=" + str(speed_diff) + " speed_reward=" + str(speed_reward) + " direction_diff=" + str(direction_diff)
+              + " steps_reward=" + str(steps_reward) + " total_reward=" + str(reward))
+        '''
         #################### RETURN REWARD ####################
 
         # Always return a float value
