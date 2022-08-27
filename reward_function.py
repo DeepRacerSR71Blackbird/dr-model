@@ -433,9 +433,9 @@ class Reward:
         reward = 1e-3
 
         ## Reward if car goes close to optimal racing line ##
-        DISTANCE_MULTIPLE = 3
+        DISTANCE_MULTIPLE = 2
         dist = dist_to_racing_line(optimals[0:2], optimals_second[0:2], [x, y])
-        distance_reward = max(1e-3, 1 - (dist/(track_width*0.2))) * DISTANCE_MULTIPLE
+        distance_reward = max(1e-2, 1 - (dist/(track_width*0.2))) * DISTANCE_MULTIPLE
         reward += distance_reward
         '''
         ABS_STEERING_THRESHOLD = 15 
@@ -482,7 +482,7 @@ class Reward:
         heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
         heading2optimal_diff=abs(heading2optimal_diff)
         if heading2optimal_diff>60:
-            steer_reward = 1e-3
+            steer_reward = 1e-2
         elif heading2optimal_diff>15:
             steer_reward = (1-(heading2optimal_diff/90))
         else:
