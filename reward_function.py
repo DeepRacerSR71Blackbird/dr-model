@@ -473,8 +473,19 @@ class Reward:
             steps_reward = 0 
         reward += steps_reward
         '''
+        # slowest = 2.0
+        # avg_slow = 2.5
+        # if steps<15:
+        #     speed_reward = speed/2.0
+        # else:
+        #     if speed<slowest:
+        #         speed_reward = 1e-3
+        #     elif speed<avg_slow:
+        #         speed_reward = 0.1
+        #     else:
+        #         speed_reward = 0.1+(speed - avg_slow)
         MAX_SPEED = 4.0
-        speed_multiple = 1.0
+        speed_multiple = 0.8
         speed_reward = (speed / MAX_SPEED) * speed_multiple
         reward += speed_reward
         # Zero reward if obviously wrong direction (e.g. spin)
