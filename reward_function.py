@@ -473,6 +473,10 @@ class Reward:
             steps_reward = 0 
         reward += steps_reward
         '''
+        MAX_SPEED = 4.0
+        speed_multiple = 1.0
+        speed_reward = (speed / MAX_SPEED) * speed_multiple
+        reward += speed_reward
         # Zero reward if obviously wrong direction (e.g. spin)
         # direction_diff = racing_direction_diff(
         #     optimals[0:2], optimals_second[0:2], [x, y], heading)
@@ -508,6 +512,7 @@ class Reward:
         ## Zero reward if off track ##
         if all_wheels_on_track == False:
             reward = 1e-3
+        print("dist_reward={:.3f} speed_reward={:.3f} steer_reward={:.3f} tot_reward={:.3f}".format(distance_reward,speed_reward,steer_reward,reward))
 
         ####################### VERBOSE #######################
         '''
