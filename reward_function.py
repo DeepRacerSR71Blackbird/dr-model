@@ -523,7 +523,7 @@ class Reward:
         ## Zero reward if off track ##
         if all_wheels_on_track == False:
             reward = 1e-3
-        print("dist_reward={:.3f} speed_reward={:.3f} steer_reward={:.3f} tot_reward={:.3f}".format(distance_reward,speed_reward,steer_reward,reward))
+        print("dist_reward={:.3f} steer_reward={:.3f} tot_reward={:.3f}".format(distance_reward,steer_reward,reward))
 
         ####################### VERBOSE #######################
         '''
