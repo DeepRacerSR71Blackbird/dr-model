@@ -484,10 +484,10 @@ class Reward:
         #         speed_reward = 0.1
         #     else:
         #         speed_reward = 0.1+(speed - avg_slow)
-        MAX_SPEED = 4.0
-        speed_multiple = 0.8
-        speed_reward = (speed / MAX_SPEED) * speed_multiple
-        reward += speed_reward
+        # MAX_SPEED = 4.0
+        # speed_multiple = 0.8
+        # speed_reward = (speed / MAX_SPEED) * speed_multiple
+        # reward += speed_reward
         # Zero reward if obviously wrong direction (e.g. spin)
         # direction_diff = racing_direction_diff(
         #     optimals[0:2], optimals_second[0:2], [x, y], heading)
