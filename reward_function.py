@@ -514,7 +514,7 @@ class Reward:
             return float(reward)
         step_reward_multiple=0.8
         step_reward=calc_step_reward(params)*step_reward_multiple
-        reward+=step_reward
+        # reward+=step_reward
         '''
         # Zero reward of obviously too slow
         speed_diff_zero = optimals[2]-speed
