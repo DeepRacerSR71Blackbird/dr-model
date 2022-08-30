@@ -495,7 +495,7 @@ class Reward:
 
         heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
         heading2optimal_diff=abs(heading2optimal_diff)
-        if heading2optimal_diff>50:
+        if heading2optimal_diff>45:
             steer_reward = 0.1
         elif heading2optimal_diff>20:
             steer_reward = (1-(heading2optimal_diff/90))
