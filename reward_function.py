@@ -436,7 +436,7 @@ class Reward:
         DISTANCE_MULTIPLE = 2
         dist = dist_to_racing_line(optimals[0:2], optimals_second[0:2], [x, y])
         distance_reward = max(1e-2, 1 - (dist/(track_width*0.2))) * DISTANCE_MULTIPLE
-        # reward += distance_reward
+        reward += distance_reward
         '''
         ABS_STEERING_THRESHOLD = 15 
         abs_steering = abs(steering_angle)
