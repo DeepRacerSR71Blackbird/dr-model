@@ -496,13 +496,25 @@ class Reward:
 
         heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
         heading2optimal_diff=abs(heading2optimal_diff)
-        if heading2optimal_diff>50:
-            steer_reward = 0.1
+        if heading2optimal_diff>40:
+            steer_reward = 1e-3
         elif heading2optimal_diff>20:
-            steer_reward = (1-(heading2optimal_diff/90))
+            steer_reward = (1-(heading2optimal_diff/90))**2
         else:
             steer_reward = 1
         reward += steer_reward
+
+        def calc_step_reward(params):
+            steps = params['steps']
+            progress = params['progress']
+            TOTAL_NUM_STEPS = 240
+            reward = 0
+            if progress > (steps / TOTAL_NUM_STEPS) * 100 :
+                reward += 1.0
+            return float(reward)
+        step_reward_multiple=0.8
+        step_reward=calc_step_reward(params)*step_reward_multiple
+        reward+=step_reward
         '''
         # Zero reward of obviously too slow
         speed_diff_zero = optimals[2]-speed
@@ -523,7 +535,7 @@ class Reward:
         ## Zero reward if off track ##
         if all_wheels_on_track == False:
             reward = 1e-3
-        print("dist_reward={:.3f} steer_reward={:.3f} tot_reward={:.3f}".format(distance_reward,steer_reward,reward))
+        print("dist_reward={:.3f} steer_reward={:.3f} step_reward={:.3f} tot_reward={:.3f}".format(distance_reward,steer_reward,step_reward,reward))
 
         ####################### VERBOSE #######################
         '''
