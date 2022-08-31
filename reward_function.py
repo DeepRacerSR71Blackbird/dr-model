@@ -507,7 +507,7 @@ class Reward:
         def calc_step_reward(params):
             steps = params['steps']
             progress = params['progress']
-            TOTAL_NUM_STEPS = 240
+            TOTAL_NUM_STEPS = 250
             reward = 0
             if progress > (steps / TOTAL_NUM_STEPS) * 100 :
                 reward += 1.0
