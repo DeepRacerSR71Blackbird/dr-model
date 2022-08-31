@@ -507,14 +507,14 @@ class Reward:
         def calc_step_reward(params):
             steps = params['steps']
             progress = params['progress']
-            TOTAL_NUM_STEPS = 240
+            TOTAL_NUM_STEPS = 250
             reward = 0
             if progress > (steps / TOTAL_NUM_STEPS) * 100 :
                 reward += 1.0
             return float(reward)
         step_reward_multiple=0.8
         step_reward=calc_step_reward(params)*step_reward_multiple
-        # reward+=step_reward
+        reward+=step_reward
         '''
         # Zero reward of obviously too slow
         speed_diff_zero = optimals[2]-speed
