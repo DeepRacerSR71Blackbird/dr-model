@@ -534,6 +534,7 @@ class Reward:
             speed_reward = 0
         speed_reward = speed_reward * SPEED_MULTIPLE
         reward += speed_reward
+        # FIXME can add time list to reward step in another way
         '''
         # Reward if less steps 
         REWARD_PER_STEP_FOR_FASTEST_TIME = 4
