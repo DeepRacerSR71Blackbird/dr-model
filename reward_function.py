@@ -523,13 +523,15 @@ class Reward:
         '''
         ## Reward if speed is close to optimal speed ##
         
-        SPEED_DIFF_NO_REWARD = 1
-        SPEED_MULTIPLE = 1
+        SPEED_DIFF_NO_REWARD = 0.8
+        SPEED_MULTIPLE = 1.2
         speed_diff = abs(optimals[2]-speed)
         if speed_diff <= SPEED_DIFF_NO_REWARD:
             # we use quadratic punishment (not linear) bc we're not as confident with the optimal speed
             # so, we do not punish small deviations from optimal speed
             speed_reward = 1 - (speed_diff/(SPEED_DIFF_NO_REWARD))**2
+            if speed>optimals[2]:
+                speed_reward += ((speed-optimals[2])*2)
         else:
             speed_reward = 0
         speed_reward = speed_reward * SPEED_MULTIPLE
@@ -589,6 +591,8 @@ class Reward:
             reward = 0
             if progress > (steps / TOTAL_NUM_STEPS) * 100 :
                 reward += 1.0
+                # reward += (TOTAL_NUM_STEPS - (steps/progress))/15
+
             return float(reward)
         
         step_reward_multiple=0.8
