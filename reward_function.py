@@ -228,6 +228,77 @@ class Reward:
 
             return projected_time
 
+        def polar(x, y):
+            """
+            returns r, theta(degrees)
+            """
+
+            r = (x ** 2 + y ** 2) ** .5
+            theta = math.degrees(math.atan2(y,x))
+            return r, theta
+
+        def angle_mod_360(angle):
+            """
+            Maps an angle to the interval -180, +180.
+            Examples:
+            angle_mod_360(362) == 2
+            angle_mod_360(270) == -90
+            :param angle: angle in degree
+            :return: angle in degree. Between -180 and +180
+            """
+
+            n = math.floor(angle/360.0)
+
+            angle_between_0_and_360 = angle - n*360.0
+
+            if angle_between_0_and_360 <= 180.0:
+                return angle_between_0_and_360
+            else:
+                return angle_between_0_and_360 - 360
+
+        # TODO based on generic
+        def get_target_steering_degree(params,racing_coords):
+            car_x = params['x']
+            car_y = params['y']
+            tx, ty, _ = get_target_point(racing_coords,[car_x,car_y])
+            dx = tx-car_x
+            dy = ty-car_y
+            heading = params['heading']
+
+            _, target_angle = polar(dx, dy)
+
+            best_steering_angle = angle_mod_360((target_angle - heading))
+
+            if self.verbose == True:
+                print("car_x={:.4f} car_y={:.4f}".format(car_x,car_y))
+                print("target_x={:.4f} target_y={:.4f}".format(tx,ty))
+                print("heading={:.4f} target_angle={:.4f} best_steering_angle={:.4f}".format(heading,target_angle,best_steering_angle))
+
+            return best_steering_angle
+
+        def score_steer_to_point_ahead(params,racing_coords):
+            best_steering_angle = get_target_steering_degree(params,racing_coords)
+            steering_angle = params['steering_angle']
+
+            MAX_DIFF=30.0
+            steer2optimal_diff=abs(steering_angle - best_steering_angle)
+            # error = (steer2optimal_diff / MAX_DIFF) if steer2optimal_diff<MAX_DIFF else 1  # 30 degree is already really bad
+            if steer2optimal_diff>15:
+                score=0
+            elif steer2optimal_diff>10:
+                score=0.5
+            else:
+                score=1
+
+            # score = (1.0 - error)**2
+            # if steer2optimal_diff<5:
+            #     score += 0.3
+
+            if self.verbose == True:
+                print("actual_steering={:.2f} score={:.4f}".format(steering_angle,score))
+            heading2optimal_diff = best_steering_angle
+            return heading2optimal_diff,steer2optimal_diff,max(score, 0.01)  # optimizer is rumored to struggle with negative numbers and numbers too close to zero
+
         #################### RACING LINE ######################
 
         # Optimal racing line for the Spain track
@@ -525,9 +596,22 @@ class Reward:
         ################ REWARD AND PUNISHMENT ################
 
         ## Define the default reward ##
-        reward = 1
+        reward = 1e-3
+
+        STEER_MULTIPLE=2
+        heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
+        heading2optimal_diff=abs(heading2optimal_diff)
+        if heading2optimal_diff>40:
+            steer_reward = 1e-3
+        elif heading2optimal_diff>15:
+            steer_reward = (1-(heading2optimal_diff/90))**2
+        else:
+            steer_reward = 1
+        steer_reward*=STEER_MULTIPLE
+        reward += (steer_reward)
+
         ## Reward if car goes close to optimal racing line ##
-        DISTANCE_MULTIPLE = 3
+        DISTANCE_MULTIPLE = 2
         dist = dist_to_racing_line(optimals[0:2], optimals_second[0:2], [x, y])
         distance_reward = max(1e-3, 1 - (dist/(track_width*0.2))) * DISTANCE_MULTIPLE
         reward += distance_reward
@@ -552,46 +636,47 @@ class Reward:
         reward += speed_reward
         
         # Reward if less steps 
-        REWARD_PER_STEP_FOR_FASTEST_TIME = 4
-        STANDARD_TIME = 32
-        FASTEST_TIME = 24
-        times_list = [row[3] for row in racing_track]
-        projected_time = projected_time(self.first_racingpoint_index, closest_index, steps, times_list) 
-        try:
-            steps_prediction = projected_time * 15 + 1
-            reward_prediction = max(1e-3, (- REWARD_PER_STEP_FOR_FASTEST_TIME * (FASTEST_TIME) /
-                (STANDARD_TIME - FASTEST_TIME)) * ( steps_prediction - (STANDARD_TIME * 15 + 1)))
-            steps_reward = min(REWARD_PER_STEP_FOR_FASTEST_TIME, reward_prediction / steps_prediction)
-        except:
-            steps_reward = 0 
-        reward += steps_reward
+        # REWARD_PER_STEP_FOR_FASTEST_TIME = 4
+        # STANDARD_TIME = 32
+        # FASTEST_TIME = 24
+        # times_list = [row[3] for row in racing_track]
+        # projected_time = projected_time(self.first_racingpoint_index, closest_index, steps, times_list) 
+        # try:
+        #     steps_prediction = projected_time * 15 + 1
+        #     reward_prediction = max(1e-3, (- REWARD_PER_STEP_FOR_FASTEST_TIME * (FASTEST_TIME) /
+        #         (STANDARD_TIME - FASTEST_TIME)) * ( steps_prediction - (STANDARD_TIME * 15 + 1)))
+        #     steps_reward = min(REWARD_PER_STEP_FOR_FASTEST_TIME, reward_prediction / steps_prediction)
+        # except:
+        #     steps_reward = 0 
+        # reward += steps_reward
         
         # Zero reward if obviously wrong direction (e.g. spin)
-        direction_diff = racing_direction_diff(
-            optimals[0:2], optimals_second[0:2], [x, y], heading)
-        if direction_diff > 30:
-            reward = 1e-3
+        # direction_diff = racing_direction_diff(
+        #     optimals[0:2], optimals_second[0:2], [x, y], heading)
+        # if direction_diff > 30:
+        #     reward = 1e-3
         
         # Zero reward of obviously too slow
-        speed_diff_zero = optimals[2]-speed
-        if speed_diff_zero > 0.5:
-            reward = 1e-3
+        # speed_diff_zero = optimals[2]-speed
+        # if speed_diff_zero > 0.5:
+        #     reward = 1e-3
 
         ## Incentive for finishing the lap in less steps ##
-        REWARD_FOR_FASTEST_TIME = 1000 # should be adapted to track length and other rewards
-        STANDARD_TIME = 32  # seconds (time that is easily done by model)
-        FASTEST_TIME = 24  # seconds (best time of 1st place on the track)
-        if progress == 100:
-            finish_reward = max(1e-3, (-REWARD_FOR_FASTEST_TIME /
-                        (15*(STANDARD_TIME-FASTEST_TIME)))*(steps-STANDARD_TIME*15))
-        else:
-            finish_reward = 0
-        reward += finish_reward
+        # REWARD_FOR_FASTEST_TIME = 1000 # should be adapted to track length and other rewards
+        # STANDARD_TIME = 32  # seconds (time that is easily done by model)
+        # FASTEST_TIME = 24  # seconds (best time of 1st place on the track)
+        # if progress == 100:
+        #     finish_reward = max(1e-3, (-REWARD_FOR_FASTEST_TIME /
+        #                 (15*(STANDARD_TIME-FASTEST_TIME)))*(steps-STANDARD_TIME*15))
+        # else:
+        #     finish_reward = 0
+        # reward += finish_reward
         
         ## Zero reward if off track ##
         if all_wheels_on_track == False:
             reward = 1e-3
-
+        print("dist_reward={:.3f} steer_reward={:.3f}".format(distance_reward,steer_reward))
+        print("speed_reward={:.3f} tot_reward={:.3f}".format(speed_reward,reward))
         ####################### VERBOSE #######################
         '''
         if self.verbose == True:
