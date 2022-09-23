@@ -53,7 +53,7 @@ class Reward:
         def get_target_steering_degree(params,racing_coords):
             car_x = params['x']
             car_y = params['y']
-            tx, ty, _ = get_target_point(racing_coords,[car_x,car_y])
+            tx, ty, _, _ = get_target_point(racing_coords,[car_x,car_y])
             dx = tx-car_x
             dy = ty-car_y
             heading = params['heading']
@@ -227,77 +227,6 @@ class Reward:
                 projected_time = 9999
 
             return projected_time
-
-        def polar(x, y):
-            """
-            returns r, theta(degrees)
-            """
-
-            r = (x ** 2 + y ** 2) ** .5
-            theta = math.degrees(math.atan2(y,x))
-            return r, theta
-
-        def angle_mod_360(angle):
-            """
-            Maps an angle to the interval -180, +180.
-            Examples:
-            angle_mod_360(362) == 2
-            angle_mod_360(270) == -90
-            :param angle: angle in degree
-            :return: angle in degree. Between -180 and +180
-            """
-
-            n = math.floor(angle/360.0)
-
-            angle_between_0_and_360 = angle - n*360.0
-
-            if angle_between_0_and_360 <= 180.0:
-                return angle_between_0_and_360
-            else:
-                return angle_between_0_and_360 - 360
-
-        # TODO based on generic
-        def get_target_steering_degree(params,racing_coords):
-            car_x = params['x']
-            car_y = params['y']
-            tx, ty, _ = get_target_point(racing_coords,[car_x,car_y])
-            dx = tx-car_x
-            dy = ty-car_y
-            heading = params['heading']
-
-            _, target_angle = polar(dx, dy)
-
-            best_steering_angle = angle_mod_360((target_angle - heading))
-
-            if self.verbose == True:
-                print("car_x={:.4f} car_y={:.4f}".format(car_x,car_y))
-                print("target_x={:.4f} target_y={:.4f}".format(tx,ty))
-                print("heading={:.4f} target_angle={:.4f} best_steering_angle={:.4f}".format(heading,target_angle,best_steering_angle))
-
-            return best_steering_angle
-
-        def score_steer_to_point_ahead(params,racing_coords):
-            best_steering_angle = get_target_steering_degree(params,racing_coords)
-            steering_angle = params['steering_angle']
-
-            MAX_DIFF=30.0
-            steer2optimal_diff=abs(steering_angle - best_steering_angle)
-            # error = (steer2optimal_diff / MAX_DIFF) if steer2optimal_diff<MAX_DIFF else 1  # 30 degree is already really bad
-            if steer2optimal_diff>15:
-                score=0
-            elif steer2optimal_diff>10:
-                score=0.5
-            else:
-                score=1
-
-            # score = (1.0 - error)**2
-            # if steer2optimal_diff<5:
-            #     score += 0.3
-
-            if self.verbose == True:
-                print("actual_steering={:.2f} score={:.4f}".format(steering_angle,score))
-            heading2optimal_diff = best_steering_angle
-            return heading2optimal_diff,steer2optimal_diff,max(score, 0.01)  # optimizer is rumored to struggle with negative numbers and numbers too close to zero
 
         #################### RACING LINE ######################
 
