@@ -19,6 +19,10 @@ class Reward:
             # TODO look forward - rcoef
             closest_index = distances.index(min(distances))
             return racing_coords[(closest_index+1)%len(racing_coords)]
+
+        def dist_falktan(point1, point2):
+            return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
+        
         def polar(x, y):
             """
             returns r, theta(degrees)
@@ -48,6 +52,77 @@ class Reward:
                 return angle_between_0_and_360
             else:
                 return angle_between_0_and_360 - 360
+        
+        def get_waypoints_ordered_in_driving_direction(params):
+            # waypoints are always provided in counter clock wise order
+            if params['is_reversed']: # driving clock wise.
+                return list(reversed(params['waypoints']))
+            else: # driving counter clock wise.
+                return params['waypoints']
+
+
+        def up_sample(waypoints, factor):
+            """
+            Adds extra waypoints in between provided waypoints
+
+            :param waypoints:
+            :param factor: integer. E.g. 3 means that the resulting list has 3 times as many points.
+            :return:
+            """
+            p = waypoints
+            n = len(p)
+
+            return [[i / factor * p[(j+1) % n][0] + (1 - i / factor) * p[j][0],
+                    i / factor * p[(j+1) % n][1] + (1 - i / factor) * p[j][1]] for j in range(n) for i in range(factor)]
+
+        def get_target_point_falktan(params):
+            waypoints = up_sample(get_waypoints_ordered_in_driving_direction(params), 20)
+
+            car = [params['x'], params['y']]
+
+            distances = [dist_falktan(p, car) for p in waypoints]
+            min_dist = min(distances)
+            i_closest = distances.index(min_dist)
+
+            n = len(waypoints)
+
+            waypoints_starting_with_closest = [waypoints[(i+i_closest) % n] for i in range(n)]
+
+            r = params['track_width'] * 0.9
+
+            is_inside = [dist_falktan(p, car) < r for p in waypoints_starting_with_closest]
+            i_first_outside = is_inside.index(False)
+
+            if i_first_outside < 0:  # this can only happen if we choose r as big as the entire track
+                return waypoints[i_closest]
+
+            return waypoints_starting_with_closest[i_first_outside]
+
+
+        def get_target_steering_degree_falktan(params):
+            tx, ty = get_target_point_falktan(params)
+            car_x = params['x']
+            car_y = params['y']
+            dx = tx-car_x
+            dy = ty-car_y
+            heading = params['heading']
+
+            _, target_angle = polar(dx, dy)
+
+            steering_angle = target_angle - heading
+
+            return angle_mod_360(steering_angle)
+
+
+        def score_steer_to_point_ahead_falktan(params):
+            best_stearing_angle = get_target_steering_degree_falktan(params)
+            steering_angle = params['steering_angle']
+
+            error = (steering_angle - best_stearing_angle) / 60.0  # 60 degree is already really bad
+
+            score = 1.0 - abs(error)
+
+            return max(score, 0.01)  # optimizer is rumored to struggle with negative numbers and numbers too close to zero
 
         # TODO based on generic
         def get_target_steering_degree(params,racing_coords):
@@ -604,6 +679,7 @@ class Reward:
         ## Zero reward if off track ##
         if all_wheels_on_track == False:
             reward = 1e-3
+        reward=float(score_steer_to_point_ahead_falktan(params))
         print("dist_reward={:.3f} steer_reward={:.3f}".format(distance_reward,steer_reward))
         print("speed_reward={:.3f} tot_reward={:.3f}".format(speed_reward,reward))
         ####################### VERBOSE #######################
