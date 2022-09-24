@@ -552,16 +552,16 @@ class Reward:
             reward *= (ABS_STEERING_THRESHOLD/abs_steering)
         ## Reward if speed is close to optimal speed ##
         '''
-        # SPEED_DIFF_NO_REWARD = 1
-        # SPEED_MULTIPLE = 1
-        # speed_diff = abs(optimals[2]-speed)
-        # if speed_diff <= SPEED_DIFF_NO_REWARD:
-        #     # we use quadratic punishment (not linear) bc we're not as confident with the optimal speed
-        #     # so, we do not punish small deviations from optimal speed
-        #     speed_reward = 1 - (speed_diff/(SPEED_DIFF_NO_REWARD))**2
-        # else:
-        #     speed_reward = 0
-        # speed_reward = speed_reward * SPEED_MULTIPLE
+        SPEED_DIFF_NO_REWARD = 1
+        SPEED_MULTIPLE = 1
+        speed_diff = abs(optimals[2]-speed)
+        if speed_diff <= SPEED_DIFF_NO_REWARD:
+            # we use quadratic punishment (not linear) bc we're not as confident with the optimal speed
+            # so, we do not punish small deviations from optimal speed
+            speed_reward = 1 - (speed_diff/(SPEED_DIFF_NO_REWARD))**2
+        else:
+            speed_reward = 0
+        speed_reward = speed_reward * SPEED_MULTIPLE
         # reward += speed_reward
         
         # Reward if less steps 
