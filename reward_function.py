@@ -540,7 +540,7 @@ class Reward:
         reward += (steer_reward)
 
         ## Reward if car goes close to optimal racing line ##
-        DISTANCE_MULTIPLE = 2
+        DISTANCE_MULTIPLE = 1
         dist = dist_to_racing_line(optimals[0:2], optimals_second[0:2], [x, y])
         distance_reward = max(1e-3, 1 - (dist/(track_width*0.2))) * DISTANCE_MULTIPLE
         reward += distance_reward
@@ -552,17 +552,17 @@ class Reward:
             reward *= (ABS_STEERING_THRESHOLD/abs_steering)
         ## Reward if speed is close to optimal speed ##
         '''
-        SPEED_DIFF_NO_REWARD = 1
-        SPEED_MULTIPLE = 1
-        speed_diff = abs(optimals[2]-speed)
-        if speed_diff <= SPEED_DIFF_NO_REWARD:
-            # we use quadratic punishment (not linear) bc we're not as confident with the optimal speed
-            # so, we do not punish small deviations from optimal speed
-            speed_reward = 1 - (speed_diff/(SPEED_DIFF_NO_REWARD))**2
-        else:
-            speed_reward = 0
-        speed_reward = speed_reward * SPEED_MULTIPLE
-        reward += speed_reward
+        # SPEED_DIFF_NO_REWARD = 1
+        # SPEED_MULTIPLE = 1
+        # speed_diff = abs(optimals[2]-speed)
+        # if speed_diff <= SPEED_DIFF_NO_REWARD:
+        #     # we use quadratic punishment (not linear) bc we're not as confident with the optimal speed
+        #     # so, we do not punish small deviations from optimal speed
+        #     speed_reward = 1 - (speed_diff/(SPEED_DIFF_NO_REWARD))**2
+        # else:
+        #     speed_reward = 0
+        # speed_reward = speed_reward * SPEED_MULTIPLE
+        # reward += speed_reward
         
         # Reward if less steps 
         # REWARD_PER_STEP_FOR_FASTEST_TIME = 4
