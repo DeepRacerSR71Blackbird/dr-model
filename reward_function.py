@@ -88,7 +88,7 @@ class Reward:
 
             waypoints_starting_with_closest = [waypoints[(i+i_closest) % n] for i in range(n)]
 
-            r = params['track_width'] * 0.9
+            r = params['track_width'] * 1.5
 
             is_inside = [dist_falktan(p, car) < r for p in waypoints_starting_with_closest]
             i_first_outside = is_inside.index(False)
