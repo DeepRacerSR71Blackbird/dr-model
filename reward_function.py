@@ -679,7 +679,7 @@ class Reward:
         ## Zero reward if off track ##
         if all_wheels_on_track == False:
             reward = 1e-3
-        coef=1.5
+        coef=1.2
         reward=float(score_steer_to_point_ahead_falktan(params,coef))
         print("dist_reward={:.3f} steer_reward={:.3f}".format(distance_reward,steer_reward))
         print("speed_reward={:.3f} tot_reward={:.3f}".format(speed_reward,reward))
