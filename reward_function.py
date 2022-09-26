@@ -75,7 +75,7 @@ class Reward:
             return [[i / factor * p[(j+1) % n][0] + (1 - i / factor) * p[j][0],
                     i / factor * p[(j+1) % n][1] + (1 - i / factor) * p[j][1]] for j in range(n) for i in range(factor)]
 
-        def get_target_point_falktan(params):
+        def get_target_point_falktan(params,coef):
             waypoints = up_sample(get_waypoints_ordered_in_driving_direction(params), 20)
 
             car = [params['x'], params['y']]
@@ -88,7 +88,7 @@ class Reward:
 
             waypoints_starting_with_closest = [waypoints[(i+i_closest) % n] for i in range(n)]
 
-            r = params['track_width'] * 1.5
+            r = params['track_width'] * coef
 
             is_inside = [dist_falktan(p, car) < r for p in waypoints_starting_with_closest]
             i_first_outside = is_inside.index(False)
@@ -99,8 +99,8 @@ class Reward:
             return waypoints_starting_with_closest[i_first_outside]
 
 
-        def get_target_steering_degree_falktan(params):
-            tx, ty = get_target_point_falktan(params)
+        def get_target_steering_degree_falktan(params,coef):
+            tx, ty = get_target_point_falktan(params,coef)
             car_x = params['x']
             car_y = params['y']
             dx = tx-car_x
@@ -114,8 +114,8 @@ class Reward:
             return angle_mod_360(steering_angle)
 
 
-        def score_steer_to_point_ahead_falktan(params):
-            best_stearing_angle = get_target_steering_degree_falktan(params)
+        def score_steer_to_point_ahead_falktan(params,coef):
+            best_stearing_angle = get_target_steering_degree_falktan(params,coef)
             steering_angle = params['steering_angle']
 
             error = (steering_angle - best_stearing_angle) / 60.0  # 60 degree is already really bad
@@ -679,7 +679,8 @@ class Reward:
         ## Zero reward if off track ##
         if all_wheels_on_track == False:
             reward = 1e-3
-        reward=float(score_steer_to_point_ahead_falktan(params))
+        coef=1.5
+        reward=float(score_steer_to_point_ahead_falktan(params,coef))
         print("dist_reward={:.3f} steer_reward={:.3f}".format(distance_reward,steer_reward))
         print("speed_reward={:.3f} tot_reward={:.3f}".format(speed_reward,reward))
         ####################### VERBOSE #######################
