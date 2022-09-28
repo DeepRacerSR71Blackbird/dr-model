@@ -2,7 +2,7 @@
     "action_space": [
         {
             "steering_angle": -30.0,
-            "speed": 1.4
+            "speed": 1.3
         },
         {
             "steering_angle": -15.56,
@@ -54,7 +54,7 @@
         },
         {
             "steering_angle": 30.0,
-            "speed": 1.4
+            "speed": 1.3
         }
     ],
     "sensor": [
