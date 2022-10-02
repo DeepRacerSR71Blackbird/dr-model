@@ -602,12 +602,12 @@ class Reward:
         ## Define the default reward ##
         reward = 1e-3
 
-        STEER_MULTIPLE=2
+        STEER_MULTIPLE=1
         heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
         heading2optimal_diff=abs(heading2optimal_diff)
         if heading2optimal_diff>40:
             steer_reward = 1e-3
-        elif heading2optimal_diff>15:
+        elif heading2optimal_diff>10:
             steer_reward = (1-(heading2optimal_diff/90))**2
         else:
             steer_reward = 1
@@ -627,16 +627,16 @@ class Reward:
             reward *= (ABS_STEERING_THRESHOLD/abs_steering)
         ## Reward if speed is close to optimal speed ##
         '''
-        SPEED_DIFF_NO_REWARD = 1
-        SPEED_MULTIPLE = 1
-        speed_diff = abs(optimals[2]-speed)
-        if speed_diff <= SPEED_DIFF_NO_REWARD:
-            # we use quadratic punishment (not linear) bc we're not as confident with the optimal speed
-            # so, we do not punish small deviations from optimal speed
-            speed_reward = 1 - (speed_diff/(SPEED_DIFF_NO_REWARD))**2
-        else:
-            speed_reward = 0
-        speed_reward = speed_reward * SPEED_MULTIPLE
+        # SPEED_DIFF_NO_REWARD = 1
+        # SPEED_MULTIPLE = 1
+        # speed_diff = abs(optimals[2]-speed)
+        # if speed_diff <= SPEED_DIFF_NO_REWARD:
+        #     # we use quadratic punishment (not linear) bc we're not as confident with the optimal speed
+        #     # so, we do not punish small deviations from optimal speed
+        #     speed_reward = 1 - (speed_diff/(SPEED_DIFF_NO_REWARD))**2
+        # else:
+        #     speed_reward = 0
+        # speed_reward = speed_reward * SPEED_MULTIPLE
         # reward += speed_reward
         
         # Reward if less steps 
@@ -679,10 +679,12 @@ class Reward:
         ## Zero reward if off track ##
         if all_wheels_on_track == False:
             reward = 1e-3
-        coef=1.2
-        reward=float(score_steer_to_point_ahead_falktan(params,coef))
+        # NOTE pure steering, has to use low discount factor (0.4)
+        # coef=1.2
+        # reward=float(score_steer_to_point_ahead_falktan(params,coef))
         print("dist_reward={:.3f} steer_reward={:.3f}".format(distance_reward,steer_reward))
-        print("speed_reward={:.3f} tot_reward={:.3f}".format(speed_reward,reward))
+        print("tot_reward={:.3f}".format(reward))
+        # print("speed_reward={:.3f} tot_reward={:.3f}".format(speed_reward,reward))
         ####################### VERBOSE #######################
         '''
         if self.verbose == True:
