@@ -114,6 +114,16 @@ class Reward:
             return angle_mod_360(steering_angle)
 
 
+        def score_point_ahead(params,coef):
+            best_stearing_angle = get_target_steering_degree_falktan(params,coef)
+
+            error = (best_stearing_angle / 60.0)  # 60 degree is already really bad
+
+            score = 1.0 - abs(error)
+
+            return max(score, 0.01)  # optimizer is rumored to struggle with negative numbers and numbers too close to zero
+
+
         def score_steer_to_point_ahead_falktan(params,coef):
             best_stearing_angle = get_target_steering_degree_falktan(params,coef)
             steering_angle = params['steering_angle']
@@ -680,8 +690,9 @@ class Reward:
         if all_wheels_on_track == False:
             reward = 1e-3
         # NOTE pure steering, has to use low discount factor (0.4)
-        # coef=1.2
+        coef=1.2
         # reward=float(score_steer_to_point_ahead_falktan(params,coef))
+        reward = score_point_ahead(params,coef)
         print("dist_reward={:.3f} steer_reward={:.3f}".format(distance_reward,steer_reward))
         print("tot_reward={:.3f}".format(reward))
         # print("speed_reward={:.3f} tot_reward={:.3f}".format(speed_reward,reward))
