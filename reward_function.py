@@ -610,7 +610,8 @@ class Reward:
         elif heading2optimal_diff>10:
             steer_reward = (1-(heading2optimal_diff/90))**2
         else:
-            steer_reward = 1
+            # steer_reward = 1
+            steer_reward = (1-(heading2optimal_diff/90))**2
         steer_reward*=STEER_MULTIPLE
         reward += (steer_reward)
 
@@ -618,7 +619,7 @@ class Reward:
         DISTANCE_MULTIPLE = 1
         dist = dist_to_racing_line(optimals[0:2], optimals_second[0:2], [x, y])
         distance_reward = max(1e-3, 1 - (dist/(track_width*0.3))) * DISTANCE_MULTIPLE
-        reward += distance_reward
+        # reward += distance_reward
         '''
         ABS_STEERING_THRESHOLD = 15 
         abs_steering = abs(steering_angle)
