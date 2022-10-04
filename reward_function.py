@@ -602,12 +602,12 @@ class Reward:
         ## Define the default reward ##
         reward = 1e-3
 
-        STEER_MULTIPLE=2
+        STEER_MULTIPLE=1
         heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
         heading2optimal_diff=abs(heading2optimal_diff)
         if heading2optimal_diff>40:
             steer_reward = 1e-3
-        elif heading2optimal_diff>15:
+        elif heading2optimal_diff>10:
             steer_reward = (1-(heading2optimal_diff/90))**2
         else:
             steer_reward = 1
@@ -617,7 +617,7 @@ class Reward:
         ## Reward if car goes close to optimal racing line ##
         DISTANCE_MULTIPLE = 1
         dist = dist_to_racing_line(optimals[0:2], optimals_second[0:2], [x, y])
-        distance_reward = max(1e-3, 1 - (dist/(track_width*0.2))) * DISTANCE_MULTIPLE
+        distance_reward = max(1e-3, 1 - (dist/(track_width*0.3))) * DISTANCE_MULTIPLE
         reward += distance_reward
         '''
         ABS_STEERING_THRESHOLD = 15 
@@ -679,8 +679,8 @@ class Reward:
         ## Zero reward if off track ##
         if all_wheels_on_track == False:
             reward = 1e-3
-        coef=1.2
-        reward=float(score_steer_to_point_ahead_falktan(params,coef))
+        # coef=1.2
+        # reward=float(score_steer_to_point_ahead_falktan(params,coef))
         print("dist_reward={:.3f} steer_reward={:.3f}".format(distance_reward,steer_reward))
         print("speed_reward={:.3f} tot_reward={:.3f}".format(speed_reward,reward))
         ####################### VERBOSE #######################
