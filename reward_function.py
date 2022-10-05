@@ -577,6 +577,7 @@ class Reward:
         speed = params['speed']
         steering_angle = params['steering_angle']
         track_width = params['track_width']
+        params['waypoints']=list((i[0],i[1]) for i in racing_track)
         waypoints = params['waypoints']
         closest_waypoints = params['closest_waypoints']
         is_offtrack = params['is_offtrack']
