@@ -602,18 +602,18 @@ class Reward:
         ## Define the default reward ##
         reward = 1
 
-        # STEER_MULTIPLE=1
-        # heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
-        # heading2optimal_diff=abs(heading2optimal_diff)
-        # if heading2optimal_diff>40:
-        #     steer_reward = 1e-3
-        # elif heading2optimal_diff>10:
-        #     steer_reward = (1-(heading2optimal_diff/90))**2
-        # else:
-        #     # steer_reward = 1
-        #     steer_reward = (1-(heading2optimal_diff/90))**2
-        # steer_reward*=STEER_MULTIPLE
-        # reward += (steer_reward)
+        STEER_MULTIPLE=1
+        heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
+        heading2optimal_diff=abs(heading2optimal_diff)
+        if heading2optimal_diff>40:
+            steer_reward = 1e-3
+        elif heading2optimal_diff>10:
+            steer_reward = (1-(heading2optimal_diff/90))**2
+        else:
+            # steer_reward = 1
+            steer_reward = (1-(heading2optimal_diff/90))**2
+        steer_reward*=STEER_MULTIPLE
+        reward += (steer_reward)
 
         ## Reward if car goes close to optimal racing line ##
         DISTANCE_MULTIPLE = 1
@@ -629,7 +629,7 @@ class Reward:
         ## Reward if speed is close to optimal speed ##
         '''
         SPEED_DIFF_NO_REWARD = 1
-        SPEED_MULTIPLE = 2
+        SPEED_MULTIPLE = 1
         speed_diff = abs(optimals[2]-speed)
         if speed_diff <= SPEED_DIFF_NO_REWARD:
             # we use quadratic punishment (not linear) bc we're not as confident with the optimal speed
@@ -638,7 +638,7 @@ class Reward:
         else:
             speed_reward = 0
         speed_reward = speed_reward * SPEED_MULTIPLE
-        reward += speed_reward
+        # reward += speed_reward
         
         # Reward if less steps
         REWARD_PER_STEP_FOR_FASTEST_TIME = 1
@@ -653,21 +653,21 @@ class Reward:
             steps_reward = min(REWARD_PER_STEP_FOR_FASTEST_TIME, reward_prediction / steps_prediction)
         except:
             steps_reward = 0
-        reward += steps_reward
+        # reward += steps_reward
         
         # Zero reward if obviously wrong direction (e.g. spin)
-        direction_diff = racing_direction_diff(
-            optimals[0:2], optimals_second[0:2], [x, y], heading)
-        if direction_diff > 30:
-            reward = 1e-3
+        # direction_diff = racing_direction_diff(
+        #     optimals[0:2], optimals_second[0:2], [x, y], heading)
+        # if direction_diff > 30:
+        #     reward = 1e-3
         
         # Zero reward of obviously too slow
-        speed_diff_zero = optimals[2]-speed
-        if speed_diff_zero > 0.5:
-            reward = 1e-3
+        # speed_diff_zero = optimals[2]-speed
+        # if speed_diff_zero > 0.5:
+        #     reward = 1e-3
 
         ## Incentive for finishing the lap in less steps ##
-        REWARD_FOR_FASTEST_TIME = 1500 # should be adapted to track length and other rewards
+        REWARD_FOR_FASTEST_TIME = 600 # should be adapted to track length and other rewards
         STANDARD_TIME = 35  # seconds (time that is easily done by model)
         FASTEST_TIME = 25  # seconds (best time of 1st place on the track)
         if progress == 100:
@@ -685,13 +685,15 @@ class Reward:
         # print("dist_reward={:.3f} steer_reward={:.3f}".format(distance_reward,steer_reward))
         # print("speed_reward={:.3f} tot_reward={:.3f}".format(speed_reward,reward))
         print("=== Distance reward: %f ===" % (distance_reward))
-        print("=== Steps reward: %f ===" % steps_reward)
+        print("=== Steer reward: %f ===" % steer_reward)
         print("=== Finish reward: %f ===" % finish_reward)
+        print("=== Total reward: %f ===" % reward)
         print("=== Speed reward: %f ===" % speed_reward)
+        print("=== Steps reward: %f ===" % steps_reward)
         print("Distance to racing line: %f" % dist)
         print("Optimal speed: %f" % optimals[2])
         print("Speed difference: %f" % speed_diff)
-        print("Direction difference: %f" % direction_diff)
+        # print("Direction difference: %f" % direction_diff)
         print("Predicted time: %f" % projected_time)
         print("Closest index: %i" % closest_index)
         ####################### VERBOSE #######################
