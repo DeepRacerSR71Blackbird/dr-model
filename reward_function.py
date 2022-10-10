@@ -602,7 +602,7 @@ class Reward:
         ## Define the default reward ##
         reward = 1
 
-        STEER_MULTIPLE=1
+        STEER_MULTIPLE=2
         heading2optimal_diff,steer2optimal_diff,steer_reward = score_steer_to_point_ahead(params,racing_track)
         heading2optimal_diff=abs(heading2optimal_diff)
         if heading2optimal_diff>40:
@@ -613,7 +613,7 @@ class Reward:
             # steer_reward = 1
             steer_reward = (1-(heading2optimal_diff/90))**2
         steer_reward*=STEER_MULTIPLE
-        # reward += (steer_reward)
+        reward += (steer_reward)
 
         ## Reward if car goes close to optimal racing line ##
         DISTANCE_MULTIPLE = 2
