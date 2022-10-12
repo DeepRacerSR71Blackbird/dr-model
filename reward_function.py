@@ -613,7 +613,7 @@ class Reward:
             # steer_reward = 1
             steer_reward = (1-(heading2optimal_diff/90))**2
         steer_reward*=STEER_MULTIPLE
-        reward += (steer_reward)
+        # reward += (steer_reward)
 
         ## Reward if car goes close to optimal racing line ##
         DISTANCE_MULTIPLE = 2
@@ -678,8 +678,11 @@ class Reward:
         reward += finish_reward
         
         ## Zero reward if off track ##
-        if all_wheels_on_track == False:
+        if is_offtrack:
             reward = 1e-3
+        # if all_wheels_on_track == False:
+        #     reward = 1e-3
+        
         # coef=1.2
         # reward=float(score_steer_to_point_ahead_falktan(params,coef))
         # print("dist_reward={:.3f} steer_reward={:.3f}".format(distance_reward,steer_reward))
