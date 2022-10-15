@@ -619,7 +619,7 @@ class Reward:
         DISTANCE_MULTIPLE = 2
         dist = dist_to_racing_line(optimals[0:2], optimals_second[0:2], [x, y])
         distance_reward = max(1e-3, 1 - (dist/(track_width*0.5))) * DISTANCE_MULTIPLE
-        reward += distance_reward
+        # reward += distance_reward
         '''
         ABS_STEERING_THRESHOLD = 15 
         abs_steering = abs(steering_angle)
@@ -642,14 +642,14 @@ class Reward:
         
         # Reward if less steps
         REWARD_PER_STEP_FOR_FASTEST_TIME = 1
-        STANDARD_TIME = 35
-        FASTEST_TIME = 25
+        STANDARD_TIME = 32
+        FASTEST_TIME = 24
         times_list = [row[3] for row in racing_track]
         projected_time = projected_time(self.first_racingpoint_index, closest_index, steps, times_list)
         try:
             steps_prediction = projected_time * 15 + 1
-            reward_prediction = max(1e-3, (-REWARD_PER_STEP_FOR_FASTEST_TIME*(FASTEST_TIME) /
-                                           (STANDARD_TIME-FASTEST_TIME))*(steps_prediction-(STANDARD_TIME*15+1)))
+            reward_prediction = max(1e-3, (-REWARD_PER_STEP_FOR_FASTEST_TIME*(FASTEST_TIME) / (STANDARD_TIME-FASTEST_TIME))
+                                                *(steps_prediction-(STANDARD_TIME*15+1)))
             steps_reward = min(REWARD_PER_STEP_FOR_FASTEST_TIME, reward_prediction / steps_prediction)
         except:
             steps_reward = 0
@@ -675,24 +675,39 @@ class Reward:
                       (15*(STANDARD_TIME-FASTEST_TIME)))*(steps-STANDARD_TIME*15))
         else:
             finish_reward = 0
-        reward += finish_reward
+        # reward += finish_reward
+        
+        # coef=1.2
+        # reward=float(score_steer_to_point_ahead_falktan(params,coef))
+        # print("dist_reward={:.3f} steer_reward={:.3f}".format(distance_reward,steer_reward))
+        # print("speed_reward={:.3f} tot_reward={:.3f}".format(speed_reward,reward))steps = params['steps']
+        # 
+        steps = params['steps']
+        progress = params['progress']
+        STANDARD_STEPS = 450 # 30s
+        STEP_MULTIPLE = 1.0
+        # DAVID steps
+        # STANDARD_STEPS * freq (15/s) = TARGET_FINISH_TIME
+        # if (steps % 10) == 0 and progress > (steps / STANDARD_STEPS) * 100 :
+        #     steps_reward_new += 10.0
+        # reward = float(steps_reward_new)
+        # VINCENT steps
+        expected_tot_steps = (steps / (progress/100))
+        steps_reward_new = (STANDARD_STEPS / expected_tot_steps) * STEP_MULTIPLE
+        reward = steps_reward_new
         
         ## Zero reward if off track ##
         if is_offtrack:
             reward = 1e-3
         # if all_wheels_on_track == False:
         #     reward = 1e-3
-        
-        # coef=1.2
-        # reward=float(score_steer_to_point_ahead_falktan(params,coef))
-        # print("dist_reward={:.3f} steer_reward={:.3f}".format(distance_reward,steer_reward))
-        # print("speed_reward={:.3f} tot_reward={:.3f}".format(speed_reward,reward))
         print("=== Distance reward: %f ===" % (distance_reward))
-        print("=== Steer reward: %f ===" % steer_reward)
+        print("=== Steps reward: %f ===" % steps_reward)
+        print("=== New Steps reward: %f ===" % steps_reward_new)
         print("=== Finish reward: %f ===" % finish_reward)
         print("=== Total reward: %f ===" % reward)
         print("=== Speed reward: %f ===" % speed_reward)
-        print("=== Steps reward: %f ===" % steps_reward)
+        print("=== Steer reward: %f ===" % steer_reward)
         print("Distance to racing line: %f" % dist)
         print("Optimal speed: %f" % optimals[2])
         print("Speed difference: %f" % speed_diff)
