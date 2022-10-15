@@ -795,7 +795,7 @@ class Reward:
         DISTANCE_MULTIPLE = 2
         dist = dist_to_racing_line(optimals[0:2], optimals_second[0:2], [x, y])
         distance_reward = max(1e-3, 1 - (dist/(track_width*0.5))) * DISTANCE_MULTIPLE
-        reward += distance_reward
+        # reward += distance_reward
         '''
         ABS_STEERING_THRESHOLD = 15 
         abs_steering = abs(steering_angle)
@@ -861,7 +861,8 @@ class Reward:
         steps = params['steps']
         progress = params['progress']
         STANDARD_STEPS = 450 # 30s
-        STEP_MULTIPLE = 1.0
+        FASTEST_STEPS = 390 # 26s
+        STEP_MULTIPLE = 2.0
         # DAVID steps
         # STANDARD_STEPS * freq (15/s) = TARGET_FINISH_TIME
         # if (steps % 10) == 0 and progress > (steps / STANDARD_STEPS) * 100 :
@@ -869,8 +870,9 @@ class Reward:
         # reward = float(steps_reward_new)
         # VINCENT steps
         expected_tot_steps = ((steps+0.1) / ((progress+0.1)/100))
-        steps_reward_new = ((STANDARD_STEPS / expected_tot_steps)**2) * STEP_MULTIPLE
-        # reward = steps_reward_new
+        steps_reward_new = ((STANDARD_STEPS-expected_tot_steps) / (STANDARD_STEPS-FASTEST_STEPS)) * STEP_MULTIPLE
+        steps_reward_new = max(1e-3,steps_reward_new)
+        reward += steps_reward_new
         
         ## Zero reward if off track ##
         if is_offtrack:
