@@ -693,7 +693,7 @@ class Reward:
         # reward = float(steps_reward_new)
         # VINCENT steps
         expected_tot_steps = (steps / (progress/100))
-        steps_reward_new = (STANDARD_STEPS / expected_tot_steps) * STEP_MULTIPLE
+        steps_reward_new = ((STANDARD_STEPS / expected_tot_steps)**2) * STEP_MULTIPLE
         reward = steps_reward_new
         
         ## Zero reward if off track ##
