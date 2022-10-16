@@ -851,7 +851,7 @@ class Reward:
         # 
         steps = params['steps']
         progress = params['progress']
-        STANDARD_STEPS = 450 # 30s
+        STANDARD_STEPS = 480 # 30s
         FASTEST_STEPS = 390 # 26s
         STEP_MULTIPLE = 2.0
         # DAVID steps
