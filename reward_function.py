@@ -863,7 +863,7 @@ class Reward:
         expected_tot_steps = ((steps+0.1) / ((progress+0.1)/100))
         steps_reward_new = ((STANDARD_STEPS-expected_tot_steps) / (STANDARD_STEPS-FASTEST_STEPS)) * STEP_MULTIPLE
         steps_reward_new = max(1e-3,steps_reward_new)
-        reward += steps_reward_new
+        # reward += steps_reward_new
         
         ## Zero reward if off track ##
         if is_offtrack:
